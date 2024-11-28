@@ -155,6 +155,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_AlignmentText: {fileID: 7963618835253693426}
   m_ClassificationText: {fileID: 912424416095616942}
+  model: 0
+  voice: 0
+  speed: 1
 --- !u!1 &682886992856445604
 GameObject:
   m_ObjectHideFlags: 0
