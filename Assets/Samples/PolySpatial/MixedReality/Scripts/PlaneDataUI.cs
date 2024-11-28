@@ -23,9 +23,6 @@ namespace PolySpatial.Samples
         [SerializeField] private TTSVoice voice = TTSVoice.Alloy;
         [SerializeField, Range(0.25f, 4.0f)] private float speed = 1f;
 
-        private static int planeCounter = 0; // Static counter to track unique IDs
-        private const int maxRecognitions = 10; // Limit for console logs
-
 #if UNITY_INCLUDE_ARFOUNDATION
         private ARPlane m_Plane;
 
@@ -52,15 +49,11 @@ namespace PolySpatial.Samples
 
         void OnBoundaryChanged(ARPlaneBoundaryChangedEventArgs eventArgs)
         {
-            // Stop logging if the counter exceeds the maximum limit
-            if (planeCounter >= maxRecognitions)
+            if (ttsManager == null)
             {
+                Debug.LogError("TTSManager is not assigned and could not be found.");
                 return;
             }
-
-            // Increment the counter and assign a unique ID
-            planeCounter++;
-            int planeId = planeCounter;
 
             // Get classification and alignment as strings
             string classification = m_Plane.classifications.ToString();
@@ -70,9 +63,9 @@ namespace PolySpatial.Samples
             m_ClassificationText.text = classification;
             m_AlignmentText.text = alignment;
 
-            // Log the information with the unique ID
-            string logMessage = $"{planeId}: This is a {classification} and it is {alignment} oriented.";
-            Debug.Log(logMessage);
+            // Synthesize and play the text
+            string textToSynthesize = $"This is a {classification} and it is {alignment} oriented.";
+            Debug.Log(textToSynthesize);
             //ttsManager.SynthesizeAndPlay(textToSynthesize);
 
             // Update position
