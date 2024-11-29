@@ -10,12 +10,12 @@ GameObject:
   m_Component:
   - component: {fileID: 2156284903077607890}
   - component: {fileID: 7567517665812767848}
-  - component: {fileID: 475968897290319576}
   - component: {fileID: 8580366618504650580}
   - component: {fileID: 4865283210833506963}
   - component: {fileID: 7075394709316224365}
   - component: {fileID: 6709778961499388624}
-  m_Layer: 0
+  - component: {fileID: 1643600691452280750}
+  m_Layer: 3
   m_Name: AR Default Plane
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -52,20 +52,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_DestroyOnRemoval: 1
   m_VertexChangedThreshold: 0.01
---- !u!114 &475968897290319576
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 680114521416276321}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3d180956a54db4646a1c6342921672ad, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  m_TrackingStateVisibilityThreshold: 1
-  m_HideSubsumed: 1
 --- !u!64 &8580366618504650580
 MeshCollider:
   m_ObjectHideFlags: 0
@@ -153,11 +139,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 40a612952a87b4bce90f35494004d55e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_AlignmentText: {fileID: 7963618835253693426}
-  m_ClassificationText: {fileID: 912424416095616942}
-  model: 0
-  voice: 0
-  speed: 1
+--- !u!114 &1643600691452280750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 680114521416276321}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3d180956a54db4646a1c6342921672ad, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_TrackingStateVisibilityThreshold: 1
+  m_HideSubsumed: 1
 --- !u!1 &682886992856445604
 GameObject:
   m_ObjectHideFlags: 0
@@ -169,7 +164,7 @@ GameObject:
   - component: {fileID: 1201304001932730168}
   - component: {fileID: 2848491744129892896}
   - component: {fileID: 8468572608148911420}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -309,7 +304,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -343,7 +338,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 953618417543664427}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: List Item Text Classification
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -382,7 +377,7 @@ GameObject:
   - component: {fileID: 4423566779951415369}
   - component: {fileID: 6309414883080503735}
   - component: {fileID: 7963618835253693426}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Data
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -522,7 +517,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -556,7 +551,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3073037326089103357}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: List Item Text Alignment
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -595,7 +590,7 @@ GameObject:
   - component: {fileID: 1242680279333078694}
   - component: {fileID: 903300547126378665}
   - component: {fileID: 3036435496782109483}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Label
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -735,7 +730,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -771,7 +766,7 @@ GameObject:
   - component: {fileID: 5993080460188803187}
   - component: {fileID: 425444329707628766}
   - component: {fileID: 1287762400302794660}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: PlaneData_Tooltip
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -857,7 +852,7 @@ GameObject:
   - component: {fileID: 901292365187319513}
   - component: {fileID: 7909526017125007491}
   - component: {fileID: 912424416095616942}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Data
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -997,7 +992,7 @@ MonoBehaviour:
   m_linkedTextComponent: {fileID: 0}
   parentLinkedComponent: {fileID: 0}
   m_enableKerning: 1
-  m_ActiveFontFeatures: 00000000
+  m_ActiveFontFeatures: 6e72656b
   m_enableExtraPadding: 0
   checkPaddingRequired: 0
   m_isRichText: 1
@@ -1031,7 +1026,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5421673965680166955}
-  m_Layer: 0
+  m_Layer: 3
   m_Name: Plane Data Tooltip
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -1,4 +1,3 @@
-using TMPro;
 using UnityEngine;
 
 #if UNITY_INCLUDE_ARFOUNDATION
@@ -12,16 +11,8 @@ namespace PolySpatial.Samples
 #endif
     public class PlaneDataUI : MonoBehaviour
     {
-        [SerializeField]
-        private TMP_Text m_AlignmentText;
-
-        [SerializeField]
-        private TMP_Text m_ClassificationText;
-
-        private TTSManager ttsManager;
-        [SerializeField] private TTSModel model = TTSModel.TTS_1;
-        [SerializeField] private TTSVoice voice = TTSVoice.Alloy;
-        [SerializeField, Range(0.25f, 4.0f)] private float speed = 1f;
+        private string classification;
+        private string alignment;
 
 #if UNITY_INCLUDE_ARFOUNDATION
         private ARPlane m_Plane;
@@ -30,13 +21,6 @@ namespace PolySpatial.Samples
         {
             m_Plane = GetComponent<ARPlane>();
             m_Plane.boundaryChanged += OnBoundaryChanged;
-
-            // Automatically find TTSManager in the scene
-            ttsManager = Object.FindFirstObjectByType<TTSManager>();
-            if (ttsManager == null)
-            {
-                Debug.LogError("TTSManager not found in the scene. Make sure it exists and is active.");
-            }
         }
 
         void OnDisable()
@@ -49,28 +33,16 @@ namespace PolySpatial.Samples
 
         void OnBoundaryChanged(ARPlaneBoundaryChangedEventArgs eventArgs)
         {
-            if (ttsManager == null)
-            {
-                Debug.LogError("TTSManager is not assigned and could not be found.");
-                return;
-            }
+            if (m_Plane == null) return;
 
-            // Get classification and alignment as strings
-            string classification = m_Plane.classifications.ToString();
-            string alignment = m_Plane.alignment.ToString();
-
-            // Update UI text
-            m_ClassificationText.text = classification;
-            m_AlignmentText.text = alignment;
-
-            // Synthesize and play the text
-            string textToSynthesize = $"This is a {classification} and it is {alignment} oriented.";
-            Debug.Log(textToSynthesize);
-            //ttsManager.SynthesizeAndPlay(textToSynthesize);
-
-            // Update position
-            transform.position = m_Plane.center;
+            // Actualiza clasificación y alineación del plano
+            classification = m_Plane.classifications.ToString();
+            alignment = m_Plane.alignment.ToString();
         }
 #endif
+
+        // Propiedades públicas para acceder a la clasificación y alineación
+        public string Classification => classification;
+        public string Alignment => alignment;
     }
 }

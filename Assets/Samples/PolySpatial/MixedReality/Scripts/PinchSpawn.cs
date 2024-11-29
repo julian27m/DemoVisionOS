@@ -1,4 +1,10 @@
+using Unity.PolySpatial.InputDevices;
 using UnityEngine;
+using UnityEngine.InputSystem.EnhancedTouch;
+using UnityEngine.InputSystem.LowLevel;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
+using TouchPhase = UnityEngine.InputSystem.TouchPhase;
+
 #if UNITY_INCLUDE_XR_HANDS
 using UnityEngine.XR.Hands;
 using UnityEngine.XR.Management;
@@ -9,21 +15,16 @@ namespace PolySpatial.Samples
     public class PinchSpawn : MonoBehaviour
     {
         [SerializeField]
-        GameObject m_RightSpawnPrefab;
+        Transform m_InputAxisTransform; // Objeto visual para reflejar el input visual
 
         [SerializeField]
-        GameObject m_LeftSpawnPrefab;
-
-        [SerializeField]
-        Transform m_PolySpatialCameraTransform;
+        LayerMask planeLayerMask; // Máscara para detectar los planos
 
 #if UNITY_INCLUDE_XR_HANDS
         XRHandSubsystem m_HandSubsystem;
-        XRHandJoint m_RightIndexTipJoint;
-        XRHandJoint m_RightThumbTipJoint;
         XRHandJoint m_LeftIndexTipJoint;
         XRHandJoint m_LeftThumbTipJoint;
-        bool m_ActiveRightPinch;
+        Vector3 m_LeftMidPoint;
         bool m_ActiveLeftPinch;
         float m_ScaledThreshold;
 
@@ -31,110 +32,118 @@ namespace PolySpatial.Samples
 
         void Start()
         {
-            GetHandSubsystem();
-            m_ScaledThreshold = k_PinchThreshold / m_PolySpatialCameraTransform.localScale.x;
+            EnhancedTouchSupport.Enable(); // Habilita el soporte táctil mejorado
+            m_ScaledThreshold = k_PinchThreshold / transform.localScale.x; // Escala relativa
         }
 
         void Update()
         {
-            if (!CheckHandSubsystem())
+            if (!TryEnsureInitialized())
                 return;
 
+            // Actualiza las posiciones de las manos
             var updateSuccessFlags = m_HandSubsystem.TryUpdateHands(XRHandSubsystem.UpdateType.Dynamic);
-
-            if ((updateSuccessFlags & XRHandSubsystem.UpdateSuccessFlags.RightHandRootPose) != 0)
-            {
-                // assign joint values
-                m_RightIndexTipJoint = m_HandSubsystem.rightHand.GetJoint(XRHandJointID.IndexTip);
-                m_RightThumbTipJoint = m_HandSubsystem.rightHand.GetJoint(XRHandJointID.ThumbTip);
-
-                DetectPinch(m_RightIndexTipJoint, m_RightThumbTipJoint, ref m_ActiveRightPinch, true);
-            }
 
             if ((updateSuccessFlags & XRHandSubsystem.UpdateSuccessFlags.LeftHandRootPose) != 0)
             {
-                // assign joint values
                 m_LeftIndexTipJoint = m_HandSubsystem.leftHand.GetJoint(XRHandJointID.IndexTip);
                 m_LeftThumbTipJoint = m_HandSubsystem.leftHand.GetJoint(XRHandJointID.ThumbTip);
 
-                DetectPinch(m_LeftIndexTipJoint, m_LeftThumbTipJoint, ref m_ActiveLeftPinch, false);
-            }
-        }
-
-        void GetHandSubsystem()
-        {
-            var xrGeneralSettings = XRGeneralSettings.Instance;
-            if (xrGeneralSettings == null)
-            {
-                Debug.LogError("XR general settings not set");
-            }
-
-            var manager = xrGeneralSettings.Manager;
-            if (manager != null)
-            {
-                var loader = manager.activeLoader;
-                if (loader != null)
+                if (DetectPinch(m_LeftIndexTipJoint, m_LeftThumbTipJoint, ref m_LeftMidPoint, ref m_ActiveLeftPinch))
                 {
-                    m_HandSubsystem = loader.GetLoadedSubsystem<XRHandSubsystem>();
-                    if (!CheckHandSubsystem())
-                        return;
-
-                    m_HandSubsystem.Start();
+                    Debug.Log("Pinch detectado con la mano izquierda.");
+                    HandleVisualInput();
                 }
             }
         }
 
-        bool CheckHandSubsystem()
+        void HandleVisualInput()
         {
-            if (m_HandSubsystem == null)
+            var activeTouches = Touch.activeTouches;
+
+            if (activeTouches.Count > 0)
             {
-#if !UNITY_EDITOR
-                Debug.LogError("Could not find Hand Subsystem");
-#endif
-                enabled = false;
-                return false;
-            }
+                var primaryTouchData = EnhancedSpatialPointerSupport.GetPointerState(activeTouches[0]);
 
-            return true;
-        }
+                // Actualiza la posición y rotación del TransformHandle
+                m_InputAxisTransform.SetPositionAndRotation(
+                    primaryTouchData.interactionPosition,
+                    primaryTouchData.inputDeviceRotation
+                );
 
-        void DetectPinch(XRHandJoint index, XRHandJoint thumb, ref bool activeFlag, bool right)
-        {
-            var spawnObject = right ? m_RightSpawnPrefab : m_LeftSpawnPrefab;
+                Debug.Log($"TransformHandle actualizado a posición: {m_InputAxisTransform.position}, rotación: {m_InputAxisTransform.rotation}");
 
-            if (index.trackingState != XRHandJointTrackingState.None &&
-                thumb.trackingState != XRHandJointTrackingState.None)
-            {
-                Vector3 indexPOS = Vector3.zero;
-                Vector3 thumbPOS = Vector3.zero;
-
-                if (index.TryGetPose(out Pose indexPose))
+                // Verifica si el input está sobre un plano
+                Ray ray = new Ray(m_InputAxisTransform.position, m_InputAxisTransform.forward);
+                if (Physics.Raycast(ray, out RaycastHit hit, 10f, planeLayerMask))
                 {
-                    // adjust transform relative to the PolySpatial Camera transform
-                    indexPOS = m_PolySpatialCameraTransform.InverseTransformPoint(indexPose.position);
-                }
+                    var hitObject = hit.collider.gameObject;
+                    Debug.Log($"Raycast hit object: {hitObject.name}");
 
-                if (thumb.TryGetPose(out Pose thumbPose))
-                {
-                    // adjust transform relative to the PolySpatial Camera adjustments
-                    thumbPOS = m_PolySpatialCameraTransform.InverseTransformPoint(thumbPose.position);
-                }
-
-                var pinchDistance = Vector3.Distance(indexPOS, thumbPOS);
-
-                if (pinchDistance <= m_ScaledThreshold)
-                {
-                    if (!activeFlag)
+                    if (hitObject.TryGetComponent(out CustomPlaneVisualizer customVisualizer))
                     {
-                        Instantiate(spawnObject, indexPOS, Quaternion.identity);
-                        activeFlag = true;
+                        Debug.Log($"Plano detectado: {hitObject.name}");
+                        customVisualizer.SetMeshVisibility(true); // Muestra la malla del plano
+                    }
+                    else
+                    {
+                        Debug.LogWarning("El objeto golpeado no tiene CustomPlaneVisualizer.");
                     }
                 }
                 else
                 {
-                    activeFlag = false;
+                    Debug.Log("No se detectó ningún plano en la dirección del TransformHandle.");
                 }
             }
+        }
+
+        bool DetectPinch(XRHandJoint index, XRHandJoint thumb, ref Vector3 midPoint, ref bool activeFlag)
+        {
+            if (index.trackingState == XRHandJointTrackingState.None || thumb.trackingState == XRHandJointTrackingState.None)
+            {
+                Debug.LogWarning("Las posiciones del índice o pulgar no están siendo rastreadas.");
+                return false;
+            }
+
+            Vector3 indexPOS = Vector3.zero;
+            Vector3 thumbPOS = Vector3.zero;
+
+            if (index.TryGetPose(out Pose indexPose))
+            {
+                indexPOS = indexPose.position;
+            }
+
+            if (thumb.TryGetPose(out Pose thumbPose))
+            {
+                thumbPOS = thumbPose.position;
+            }
+
+            var pinchDistance = Vector3.Distance(indexPOS, thumbPOS);
+
+            if (pinchDistance <= m_ScaledThreshold)
+            {
+                if (!activeFlag)
+                {
+                    activeFlag = true;
+                    midPoint = (indexPOS + thumbPOS) / 2;
+                    return true;
+                }
+            }
+            else
+            {
+                activeFlag = false;
+            }
+
+            return false;
+        }
+
+        bool TryEnsureInitialized()
+        {
+            if (m_HandSubsystem != null)
+                return true;
+
+            m_HandSubsystem = XRGeneralSettings.Instance?.Manager?.activeLoader?.GetLoadedSubsystem<XRHandSubsystem>();
+            return m_HandSubsystem != null;
         }
 #endif
     }
